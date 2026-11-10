@@ -225,7 +225,7 @@ except Exception as e:
 # HEADER
 # ============================================================
 
-st.markdown(
+st.html(
     """
     <div class="main-title">
         🛡️ Scam Filter
@@ -234,16 +234,12 @@ st.markdown(
     <div class="subtitle">
         Information Retrieval-Based Scam Detection System
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
-
-st.markdown(
-    """
-    Analyze a text message using tokenization, inverted indexing,
-    ranked retrieval, TF-IDF similarity, and labelled scam examples.
-    """
+st.write(
+    "Analyze a text message using tokenization, inverted indexing, "
+    "ranked retrieval, TF-IDF similarity, and labelled scam examples."
 )
 
 
@@ -251,9 +247,12 @@ st.markdown(
 # INPUT
 # ============================================================
 
-st.markdown(
-    '<div class="section-title">📩 Enter a message</div>',
-    unsafe_allow_html=True,
+st.html(
+    """
+    <div class="section-title">
+        📩 Enter a message
+    </div>
+    """
 )
 
 message = st.text_area(
@@ -265,7 +264,6 @@ message = st.text_area(
     ),
     label_visibility="visible",
 )
-
 
 analyze_button = st.button(
     "🔍 Analyze Message",
@@ -297,14 +295,11 @@ if analyze_button:
             top_k=10,
         )
 
-
     risk_score = analysis["risk_score"]
 
     category = analysis["category"]
 
-    suspicious_terms = analysis[
-        "suspicious_terms"
-    ]
+    suspicious_terms = analysis["suspicious_terms"]
 
     results = analysis["results"]
 
@@ -317,6 +312,7 @@ if analyze_button:
 
         risk_class = "risk-high"
         icon = "🚨"
+
         description = (
             "This message strongly resembles labelled "
             "scam messages in the dataset."
@@ -326,6 +322,7 @@ if analyze_button:
 
         risk_class = "risk-medium"
         icon = "⚠️"
+
         description = (
             "This message contains patterns that deserve "
             "additional review."
@@ -335,6 +332,7 @@ if analyze_button:
 
         risk_class = "risk-low"
         icon = "✅"
+
         description = (
             "This message does not strongly resemble "
             "known scam messages."
@@ -345,13 +343,20 @@ if analyze_button:
     # RESULT HEADER
     # ========================================================
 
-    st.markdown(
-        '<div class="section-title">📊 Risk Assessment</div>',
-        unsafe_allow_html=True,
+    st.html(
+        """
+        <div class="section-title">
+            📊 Risk Assessment
+        </div>
+        """
     )
 
+    # FIX:
+    # Use st.html() instead of st.markdown() so Streamlit
+    # renders the HTML elements rather than displaying the
+    # HTML source code.
 
-    st.markdown(
+    st.html(
         f"""
         <div class="risk-card {risk_class}">
 
@@ -368,8 +373,7 @@ if analyze_button:
             </div>
 
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
@@ -379,9 +383,14 @@ if analyze_button:
 
     col1, col2, col3, col4 = st.columns(4)
 
+
+    # --------------------------------------------------------
+    # Retrieved Documents
+    # --------------------------------------------------------
+
     with col1:
 
-        st.markdown(
+        st.html(
             f"""
             <div class="metric-card">
 
@@ -394,10 +403,13 @@ if analyze_button:
                 </div>
 
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
+
+    # --------------------------------------------------------
+    # Similar Spam Messages
+    # --------------------------------------------------------
 
     with col2:
 
@@ -407,7 +419,7 @@ if analyze_button:
             if documents[doc_id]["label"] == "spam"
         )
 
-        st.markdown(
+        st.html(
             f"""
             <div class="metric-card">
 
@@ -420,10 +432,13 @@ if analyze_button:
                 </div>
 
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
+
+    # --------------------------------------------------------
+    # Top Similarity
+    # --------------------------------------------------------
 
     with col3:
 
@@ -433,7 +448,7 @@ if analyze_button:
             else 0
         )
 
-        st.markdown(
+        st.html(
             f"""
             <div class="metric-card">
 
@@ -446,14 +461,17 @@ if analyze_button:
                 </div>
 
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
 
+    # --------------------------------------------------------
+    # Suspicious Terms
+    # --------------------------------------------------------
+
     with col4:
 
-        st.markdown(
+        st.html(
             f"""
             <div class="metric-card">
 
@@ -466,8 +484,7 @@ if analyze_button:
                 </div>
 
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
 
@@ -475,9 +492,12 @@ if analyze_button:
     # SUSPICIOUS TERMS
     # ========================================================
 
-    st.markdown(
-        '<div class="section-title">🔎 Suspicious Terms</div>',
-        unsafe_allow_html=True,
+    st.html(
+        """
+        <div class="section-title">
+            🔎 Suspicious Terms
+        </div>
+        """
     )
 
 
@@ -491,10 +511,7 @@ if analyze_button:
                 f'<span class="term">{term}</span>'
             )
 
-        st.markdown(
-            terms_html,
-            unsafe_allow_html=True,
-        )
+        st.html(terms_html)
 
     else:
 
@@ -507,9 +524,12 @@ if analyze_button:
     # TOP SIMILAR MESSAGES
     # ========================================================
 
-    st.markdown(
-        '<div class="section-title">📚 Top Similar Messages</div>',
-        unsafe_allow_html=True,
+    st.html(
+        """
+        <div class="section-title">
+            📚 Top Similar Messages
+        </div>
+        """
     )
 
 
@@ -532,7 +552,6 @@ if analyze_button:
 
                 label_display = "✅ HAM"
 
-
             with st.expander(
                 f"#{rank} — {label_display} — "
                 f"{similarity:.2%} similarity"
@@ -546,7 +565,6 @@ if analyze_button:
                     f"Document ID: {doc_id}"
                 )
 
-
     else:
 
         st.info(
@@ -558,51 +576,53 @@ if analyze_button:
     # INFORMATION RETRIEVAL EXPLANATION
     # ========================================================
 
-    st.markdown(
-        '<div class="section-title">ℹ️ How was this result determined?</div>',
-        unsafe_allow_html=True,
+    st.html(
+        """
+        <div class="section-title">
+            ℹ️ How was this result determined?
+        </div>
+        """
     )
 
 
-    st.markdown(
-        f"""
+    st.html(
+        """
         <div class="info-box">
 
-        <b>Information Retrieval Pipeline</b>
+            <b>Information Retrieval Pipeline</b>
 
-        <br><br>
+            <br><br>
 
-        <b>1. Tokenization</b><br>
-        The submitted message is converted into searchable terms.
+            <b>1. Tokenization</b><br>
+            The submitted message is converted into searchable terms.
 
-        <br><br>
+            <br><br>
 
-        <b>2. Ranked Retrieval</b><br>
-        The system searches the indexed message collection
-        for messages with similar terms.
+            <b>2. Ranked Retrieval</b><br>
+            The system searches the indexed message collection
+            for messages with similar terms.
 
-        <br><br>
+            <br><br>
 
-        <b>3. TF-IDF Similarity</b><br>
-        Messages are ranked according to their term importance
-        and cosine similarity.
+            <b>3. TF-IDF Similarity</b><br>
+            Messages are ranked according to their term importance
+            and cosine similarity.
 
-        <br><br>
+            <br><br>
 
-        <b>4. Risk Scoring</b><br>
-        Similarity scores from messages labelled as spam
-        contribute to the scam risk score.
+            <b>4. Risk Scoring</b><br>
+            Similarity scores from messages labelled as spam
+            contribute to the scam risk score.
 
-        <br><br>
+            <br><br>
 
-        <b>5. Classification</b><br>
-        Risk ≥ 20% → Potential Scam<br>
-        Risk 10–19.99% → Needs Review<br>
-        Risk &lt; 10% → Likely Legitimate
+            <b>5. Classification</b><br>
+            Risk ≥ 20% → Potential Scam<br>
+            Risk 10–19.99% → Needs Review<br>
+            Risk &lt; 10% → Likely Legitimate
 
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
@@ -621,14 +641,13 @@ if analyze_button:
 # FOOTER
 # ============================================================
 
-st.markdown(
+st.html(
     """
     <div class="footer">
 
-    INFO 4105 – Search Engine Principles<br>
-    Scam Filtering System | Information Retrieval Project
+        INFO 4105 – Search Engine Principles<br>
+        Scam Filtering System | Information Retrieval Project
 
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
