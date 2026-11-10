@@ -1,633 +1,790 @@
-# INFO4105-ScamFilter
-INFO4105-ScamFilter
-INFO 4105 Project: Building a Scam Filtering System
-I recommend approaching this project as a small search engine with a scam-detection feature, rather than starting by building an AI or machine-learning application.
+# INFO4105 – ScamFilter
 
-That distinction is important because INFO 4105 is Search Engine Principles. Your professor should be able to see how you apply the fundamental information retrieval concepts:
-1. Document collection and representation.
-2. Text preprocessing and tokenization.
-3. Dictionary construction.
-4. Inverted indexing.
-5. Boolean retrieval.
-6. Ranked retrieval.
-7. TF-IDF and cosine similarity.
-8. Precision, recall and retrieval evaluation.
-Your team of four can build a functional Python application that demonstrates all these concepts without needing expensive cloud services or complicated infrastructure.
-1. Understand what you are building
-ScamFilter – System Architecture
-User submits a message
+## Information Retrieval-Based Scam Detection System
 
-SMS, email or suspicious online message
+ScamFilter is an **Information Retrieval (IR)-based scam detection system** developed for **INFO 4105 – Search Engine Principles** at Kwantlen Polytechnic University.
 
+The project applies classical information retrieval techniques to identify whether a text message is likely to be a scam by comparing it with a collection of labelled SMS messages.
 
-1. Text preprocessing
+Rather than relying primarily on a machine-learning classifier, ScamFilter is implemented as a small search and retrieval system that demonstrates core search engine concepts including:
 
-Lowercase · Tokenization · Stop-word removal · Normalization
+- Text preprocessing and tokenization
+- Dictionary construction
+- Inverted indexing
+- Boolean retrieval
+- Ranked retrieval
+- TF-IDF weighting
+- Cosine similarity
+- Relevance-based scoring
+- Precision, recall, F1-score, and accuracy evaluation
 
+The project also includes a public **Streamlit web application** that allows users to submit a message and receive an explainable scam-risk assessment.
 
-2. Search engine index
+---
 
-Dictionary · Inverted index · Document collection
+## 🌐 Live Application
 
+The public ScamFilter application is available here:
 
-3A. Boolean retrieval
+**https://info4105-scamfilter-2iycv8suqpmxbygb7dkjq.streamlit.app/**
 
-AND · OR · NOT
+Users can enter a text message and receive:
 
+- Scam risk score
+- Risk classification
+- Similar messages retrieved from the dataset
+- Number of similar spam messages
+- Top similarity score
+- Suspicious terms
+- Explanation of the retrieval process
 
-3B. Ranked retrieval
+---
 
-TF-IDF · Cosine similarity
+## 📌 Project Objective
 
+The objective of ScamFilter is to investigate whether **information retrieval techniques can be used to identify scam messages based on their similarity to previously labelled spam messages**.
 
+The system treats the SMS dataset as a document collection.
 
+When a new message is submitted:
 
-4. Risk assessment
+```text
+User Message
+     ↓
+Text Preprocessing
+     ↓
+Tokenization
+     ↓
+Query Processing
+     ↓
+Inverted Index
+     ↓
+Ranked Retrieval
+     ↓
+TF-IDF
+     ↓
+Cosine Similarity
+     ↓
+Spam/Ham Evidence
+     ↓
+Risk Score
+     ↓
+Classification
+```
 
-Risk score · Matching patterns · Retrieved examples
+This approach allows the system to provide not only a classification but also evidence explaining why a message was considered suspicious.
 
+---
 
-5. Results
+# Dataset
 
-Potential Scam · Needs Review · Likely Legitimate
+ScamFilter uses the **UCI SMS Spam Collection** dataset.
 
+The dataset contains **5,572 SMS messages** labelled as either:
 
-Example of how it should work
+- `ham` – legitimate message
+- `spam` – unwanted/scam message
 
-A user submits:
-Your bank account has been suspended. Verify your account immediately by clicking this link to avoid permanent closure.
+The dataset contains:
 
-The application should:
-- Tokenize the message.
-- Identify terms such as suspended, verify, immediately, and account.
-- Search the inverted index for similar messages.
-- Retrieve relevant scam examples.
-- Calculate a relevance score.
-- Display the risk assessment and explain which terms contributed to it.
-The important part is that the application should show the retrieval process, not simply return a prediction.
+| Label | Messages |
+|---|---:|
+| Ham | 4,825 |
+| Spam | 747 |
+| **Total** | **5,572** |
 
-2. Find and select an existing dataset
-I recommend using an existing labelled dataset rather than collecting messages manually. This saves time and makes your evaluation more credible.
+The dataset is stored locally in:
 
-For this project, the best starting point is a dataset containing both legitimate messages and fraudulent or spam messages.
-Dataset comparison
-I found several useful existing datasets.
-1. UCI SMS Spam Collection
-Best starting point
+```text
+data/raw/SMSSpamCollection
+```
 
-5,574
-Labelled SMS messages
-- 4,827 legitimate (ham) and 747 spam messages.
-- English-language messages.
-- Two labels: ham and spam.
-- Small download, easy to process using Python.
-- Good for tokenization, inverted indexes, Boolean retrieval and TF-IDF.
-Official source: UCI Machine Learning Repository – SMS Spam Collection. 
-UCI Machine Learning Repository+1
+Each record contains a label followed by the corresponding SMS message.
 
+Example:
 
-2. Phishing Validation Emails Dataset – Zenodo
-2,000
-Labelled email messages
-- Contains safe and phishing emails.
-- Includes full email text.
-- Contains real-world and artificially generated examples.
-- Useful for testing whether your system works beyond SMS.
-Dataset: Phishing Validation Emails – Zenodo. 
-Zenodo+1
+```text
+ham    Hey, are we still meeting tomorrow?
 
+spam   URGENT! You have won a prize. Call now to claim!
+```
 
-3. Multiclass Phishing and Social Engineering Dataset – Zenodo
-624
-Labelled security messages
-- Six categories: Phishing, Malware, Scareware, Baiting, Pretexting and NOT-Malicious.
-- Includes email and SMS-like messages.
-- Useful if you want to explore more than two categories.
-Dataset: Multiclass NLP Dataset – Zenodo. 
-Zenodo
+---
 
+# System Architecture
 
-4. Phishing Email Detection Dataset – Zenodo
-358.8 MB
-Balanced dataset file
-- Merged from nine public email corpora.
-- Contains a balanced version and a larger merged version.
-- More suitable for an advanced extension than a first prototype.
-Dataset: Phishing Email Detection Dataset – Zenodo. 
-Zenodo+1
+The project is organized into separate components so that each information retrieval concept can be implemented and tested independently.
 
-
-My recommendation: combine datasets 1 and 2
-I would use:
-Dataset	Purpose
-UCI SMS Spam Collection	Main development dataset
-Zenodo Phishing Validation Emails	Additional testing dataset
-
-This gives you SMS and email examples and allows you to demonstrate how your search engine handles different types of messages.
-
-One important distinction: spam is not necessarily a scam. Some spam messages are merely unwanted advertisements. In your report, explain that the system detects suspicious or potentially fraudulent messages, not that every spam message is criminal fraud.
-
-For your first implementation, use the UCI dataset alone. Add the Zenodo dataset after the core search engine works. Do not combine the datasets immediately because their labels, distributions and message formats differ.
-
-3. Download and organize your project
-I recommend using:
-- Python 3.11 or later.
-- VS Code.
-- Pandas for dataset management.
-- NLTK for text preprocessing.
-- Scikit-learn for TF-IDF and cosine similarity.
-- Streamlit for the user interface.
-- Matplotlib or Seaborn for evaluation visualizations.
-You do not need a database or cloud deployment for this project.
-Step 1: Set up the development environment
-Create a GitHub repository for the team and clone it locally.
-
-Suggested repository name:
-
-INFO4105-ScamFilter
-
-Open VS Code and create the following structure:
+```text
 INFO4105-ScamFilter/
 │
+├── app/
+│   ├── app.py
+│   └── streamlit_app.py
+│
 ├── data/
-│   ├── raw/
-│   │   └── SMSSpamCollection
-│   └── processed/
+│   └── raw/
+│       └── SMSSpamCollection
+│
+├── results/
 │
 ├── src/
-│   ├── data_loader.py
-│   ├── preprocessing.py
-│   ├── indexer.py
 │   ├── boolean_retrieval.py
-│   ├── ranked_retrieval.py
 │   ├── classifier.py
-│   └── evaluation.py
-│
-├── app/
-│   └── streamlit_app.py
+│   ├── data_analysis.py
+│   ├── data_loader.py
+│   ├── evaluation.py
+│   ├── indexer.py
+│   ├── preprocessing.py
+│   ├── query_parser.py
+│   ├── ranked_retrieval.py
+│   └── search_engine.py
 │
 ├── tests/
 │   └── test_retrieval.py
 │
-├── results/
-│
+├── main.py
 ├── requirements.txt
 ├── README.md
-└── main.py
+└── .gitignore
+```
 
+---
 
-Step 2: Download the dataset
-1. Open the official UCI dataset page.
-2. Download the SMS Spam Collection dataset.
-3. Extract the archive.
-4. Locate the file named SMSSpamCollection.
-5. Place it inside data/raw/.
-The dataset uses tab-separated records containing a label and a message.
+# Implementation
 
-Example:
-ham    Hey, are we meeting today?
-spam   Congratulations! You won a free prize.
-ham    Can you call me when you arrive?
-spam   Claim your reward now. Click here.
+## 1. Data Loading
 
+The dataset is loaded from the local `SMSSpamCollection` file.
 
-Step 3: Install dependencies
-Open the VS Code terminal:
-python -m venv venv
+The data loader separates each message into:
 
+```text
+Document ID
+Message
+Label
+```
 
-Activate the environment on Windows:
-.\venv\Scripts\Activate.ps1
+The label is preserved because it is required for evaluating the retrieval and classification results.
 
+---
 
-Install dependencies:
-pip install pandas numpy nltk scikit-learn streamlit matplotlib seaborn
+## 2. Text Preprocessing
 
+Before indexing and retrieval, each message goes through preprocessing.
 
-Save dependencies:
-pip freeze > requirements.txt
+The preprocessing pipeline includes:
 
-
-Step 4: Load and inspect the dataset
-Create src/data_loader.py.
-
-Start with:
-import pandas as pddef load_dataset(path):    df = pd.read_csv(        path,        sep="\t",        header=None,        names=["label", "message"],        encoding="utf-8"    )    return dfif __name__ == "__main__":    df = load_dataset(        "data/raw/SMSSpamCollection"    )    print(df.head())    print("\nDataset information:")    print(df.info())    print("\nLabel distribution:")    print(df["label"].value_counts())
-
-
-
-Run:
-python -m src.data_loader
-
-
-Your first milestone is to successfully load the dataset and understand its structure.
-
-Record:
-- Total number of messages.
-- Number of legitimate messages.
-- Number of spam messages.
-- Missing values.
-- Duplicate messages.
-- Average message length.
-Do not delete duplicate messages without first recording how many there are and documenting your cleaning decisions.
-
-4. Build the search engine: implementation steps
-This is the most important part of the project. I recommend building the system in the following order.
-Step 5: Preprocess the messages
-Create src/preprocessing.py.
-
-The purpose is to transform raw messages into consistent searchable terms.
+1. Converting text to lowercase
+2. Removing unnecessary punctuation
+3. Tokenizing the message
+4. Removing irrelevant tokens
+5. Producing a normalized list of terms
 
 For example:
 
-Original message:
-URGENT! Your ACCOUNT has been SUSPENDED.
-Click here to VERIFY immediately!
+```text
+"URGENT! Claim your $1,000 prize now!"
+```
 
+may be transformed into terms similar to:
 
-After preprocessing:
-[    "urgent",    "account",    "suspended",    "click",    "verify",    "immediately"]
-
-
-
-Implement these operations:
-Operation	Purpose
-Lowercasing	Remove capitalization differences
-Tokenization	Split messages into individual terms
-Punctuation removal	Remove unnecessary punctuation
-Stop-word removal	Remove common words such as "the" and "is"
-Normalization	Standardize words where appropriate
-
-Example implementation:
-import refrom nltk.corpus import stopwordsfrom nltk.tokenize import wordpunct_tokenizeSTOP_WORDS = set(stopwords.words("english"))def preprocess_text(message):    message = message.lower()    message = re.sub(        r"http\S+|www\.\S+",        " url ",        message    )    message = re.sub(r"[^a-z0-9\s]", " ", message)    tokens = wordpunct_tokenize(message)    tokens = [        word for word in tokens        if word not in STOP_WORDS        and len(word) > 1    ]    return tokens
-
-
-
-Download the NLTK stop-word collection once:
-import nltknltk.download("stopwords")
-
-
-
-Important: Do not remove every word that looks unimportant. Words such as not, never, and no can change the meaning of a message. Preserve negations when building your stop-word list.
-
-Also, keep a consistent preprocessing method for both the indexed messages and the user's submitted message.
-Step 6: Construct the dictionary
-An information retrieval system uses a dictionary containing the unique terms in its document collection.
-
-For example, suppose you have three messages:
-Document	Message
-D1	Claim your free prize
-D2	Your account is suspended
-D3	Claim your free reward
-
-Your dictionary could look like:
-account
+```text
+urgent
 claim
-free
 prize
-reward
-suspended
+now
+```
 
+The same preprocessing process is applied to both the document collection and user queries so that they can be compared consistently.
 
-Your program should generate the dictionary automatically from the dataset.
+---
 
-The dictionary will be used by the inverted index.
-Step 7: Build the inverted index
-This is a core requirement of your project.
+# 3. Dictionary and Inverted Index
 
-An inverted index maps each term to the documents containing that term.
+The system builds an **inverted index** from the document collection.
 
-Example:
-inverted_index = {    "claim": ["D1", "D3"],    "free": ["D1", "D3"],    "prize": ["D1"],    "account": ["D2"],    "suspended": ["D2"],    "reward": ["D3"]}
+An inverted index maps terms to the documents in which those terms appear.
 
+Conceptually:
 
+```text
+urgent  → document 12, document 45, document 103
+claim   → document 45, document 89
+prize   → document 12, document 45
+```
 
-Create src/indexer.py.
+This allows the system to efficiently identify documents containing terms from a user's query.
 
-Your implementation should:
-1. Read the labelled messages.
-2. Assign each message a unique document ID.
-3. Preprocess each message.
-4. Generate the dictionary.
-5. Build the inverted index.
-6. Store the document ID, original text and label.
-A basic implementation:
-from collections import defaultdictdef build_inverted_index(documents):    index = defaultdict(set)    for doc_id, tokens in documents.items():        for token in set(tokens):            index[token].add(doc_id)    return {        term: sorted(doc_ids)        for term, doc_ids in index.items()    }
+The index is implemented in:
 
+```text
+src/indexer.py
+```
 
+---
 
-You should also calculate document frequency:
-\[
-DF(t)=|\{d:t\in d\}|
-\]
+# 4. Boolean Retrieval
 
-This tells you how many documents contain a particular term.
+The project also implements Boolean retrieval.
 
-What to demonstrate in your presentation: Show how a search for account retrieves only documents containing that term instead of scanning the entire dataset.
-Step 8: Implement Boolean retrieval
-Create src/boolean_retrieval.py.
+Boolean retrieval allows documents to be selected based on whether they contain particular terms.
 
-You need to demonstrate the three main Boolean operators:
-- AND: Both terms must appear.
-- OR: At least one term must appear.
-- NOT: Exclude documents containing a term.
-Example:
-claim AND prize
+For example:
 
+```text
+urgent AND prize
+```
 
-Returns messages containing both terms.
-account OR suspended
+returns documents containing both terms.
 
+Boolean retrieval demonstrates the fundamental concept of matching a query against an indexed document collection.
 
-Returns messages containing either term.
-account AND NOT legitimate
+Implementation:
 
+```text
+src/boolean_retrieval.py
+```
 
-Returns messages containing account but excluding those containing legitimate.
+---
 
-The implementation can use Python sets:
-def boolean_and(index, term1, term2):    return index.get(term1, set()) & index.get(term2, set())def boolean_or(index, term1, term2):    return index.get(term1, set()) | index.get(term2, set())def boolean_not(index, term, all_documents):    return all_documents - index.get(term, set())
+# 5. Query Processing
 
+User messages are processed as search queries.
 
+The query-processing component converts the submitted message into searchable terms before retrieval takes place.
 
-For the actual application, implement a small query parser so users can enter expressions containing AND, OR and NOT. Start with two-term queries, then expand to multiple terms if time permits.
-Step 9: Implement ranked retrieval using TF-IDF
-Boolean retrieval tells you whether documents match a query.
+For example:
 
-Ranked retrieval goes further: it tells you which documents are most relevant.
+```text
+"Congratulations! You won a free prize. Click here now."
+```
 
-I recommend TF-IDF with cosine similarity.
+becomes a collection of normalized query terms.
 
-TF-IDF consists of:
-- TF: How frequently a term appears in a document.
-- IDF: How rare or informative that term is across the document collection.
-The inverse document frequency can be calculated as:
-\[
-IDF(t)=\log\left(\frac{N}{DF(t)}\right)
-\]
+Implementation:
 
-Where:
-- \(N\) = total number of documents.
-- \(DF(t)\) = number of documents containing term \(t\).
-Cosine similarity measures the similarity between the submitted message and an indexed document:
-\[
-\text{Cosine Similarity}(A,B)=
-\frac{A\cdot B}{\|A\|\|B\|}
-\]
+```text
+src/query_parser.py
+```
 
-Use Scikit-learn to implement this:
-from sklearn.feature_extraction.text import TfidfVectorizerfrom sklearn.metrics.pairwise import cosine_similarityvectorizer = TfidfVectorizer(    lowercase=True,    stop_words="english")document_vectors = vectorizer.fit_transform(    training_messages)def retrieve_similar_messages(query):    query_vector = vectorizer.transform([query])    scores = cosine_similarity(        query_vector,        document_vectors    ).flatten()    ranked_indices = scores.argsort()[::-1]    return [        (idx, scores[idx])        for idx in ranked_indices[:5]    ]
+---
 
+# 6. Ranked Retrieval
 
+Boolean matching alone does not indicate which documents are most relevant.
 
-This returns the five most similar messages.
+ScamFilter therefore implements **ranked retrieval**.
 
-You should display:
-- Retrieved message.
-- Its relevance score.
-- Its original label.
-- The matching terms.
-Important: Fit your TF-IDF vectorizer using training documents only. Never include test messages when building the index or fitting the vectorizer. This avoids data leakage.
-Step 10: Develop the scam risk assessment
-Now combine the search results into a risk assessment.
+The system calculates how similar each document is to the submitted message and ranks the results from most similar to least similar.
 
-For each submitted message:
-1. Preprocess the message.
-2. Search the inverted index.
-3. Retrieve the most relevant examples.
-4. Calculate similarity scores.
-5. Examine the labels of the retrieved examples.
-6. Generate an assessment.
-For the first version, you can calculate a weighted scam score using the similarity of the retrieved messages:
-\[
-RiskScore =
-100 \times
-\frac{\sum_{d\in R} sim(q,d)\cdot I(label_d=spam)}
-{\sum_{d\in R} sim(q,d)}
-\]
+The most relevant messages are returned to the user.
 
-Where:
-- \(R\) = retrieved documents.
-- \(sim(q,d)\) = cosine similarity.
-- \(I(label_d=spam)\) = 1 for spam and 0 otherwise.
-If the denominator is zero, return an insufficient-evidence result rather than dividing by zero.
+Implementation:
 
-This gives you an interpretable score based on retrieved examples. It is a heuristic, not a statistically calibrated probability of fraud.
+```text
+src/ranked_retrieval.py
+```
 
-Suggested initial categories:
-Score	Assessment
-70–100	Potential Scam
-40–69	Needs Review
-0–39	Likely Legitimate
+The system retrieves the top matching documents rather than returning the entire dataset.
 
-These thresholds are starting points. You should adjust them using your validation results to find a suitable balance between false positives and false negatives.
+---
 
-Also, a legitimate message that contains words such as account, verify, or payment should not automatically be labelled a scam. This is why ranked retrieval and the labelled reference collection matter.
+# 7. TF-IDF
 
-5. Build the user interface
-Once the search engine works in the terminal, build the interface.
+ScamFilter uses **TF-IDF (Term Frequency–Inverse Document Frequency)** to determine the importance of terms.
 
-I recommend Streamlit because it lets you create a working Python web application without spending time developing a frontend from scratch.
-ScamFilter
-Prototype concept
+TF-IDF gives greater importance to terms that are:
 
-MESSAGE SECURITY ANALYSIS
+- Frequent within a particular message
+- Less common across the entire document collection
 
-Analyze a suspicious message
-Your bank account has been suspended. Verify your information immediately by clicking this link.
-Potential Scam
+This helps distinguish informative terms from very common words.
 
-86/100
-Illustrative risk score – not a real test result
+The general idea is:
 
-Why was this message flagged?
-suspended
-verify
-immediately
+```text
+TF-IDF = Term Frequency × Inverse Document Frequency
+```
+
+The system calculates document frequency and inverse document frequency across the SMS collection.
+
+---
+
+# 8. Cosine Similarity
+
+After converting documents and queries into TF-IDF vectors, the system calculates **cosine similarity**.
+
+Cosine similarity measures the similarity between two vectors.
+
+Conceptually:
+
+```text
+                    A · B
+Cosine Similarity = -------
+                   |A||B|
+```
+
+A score closer to:
+
+```text
+1.0
+```
+
+indicates stronger similarity.
+
+A score closer to:
+
+```text
+0.0
+```
+
+indicates weaker similarity.
+
+The retrieved documents are ranked according to their similarity to the submitted message.
+
+---
+
+# 9. Scam Risk Scoring
+
+The system uses the retrieved documents to calculate a scam risk score.
+
+The important distinction is that the system does not simply ask:
+
+> "Does this message contain a suspicious word?"
+
+Instead, it considers the similarity of the submitted message to previously labelled spam documents.
+
+Conceptually:
+
+```text
+Spam Similarity
+──────────────────────────
+Total Retrieved Similarity
+```
+
+This produces a normalized risk score.
+
+For example:
+
+```text
+Risk Score = 0.9218
+```
+
+is displayed to the user as:
+
+```text
+92.18%
+```
+
+A higher score means that the submitted message is more similar to the spam examples retrieved from the dataset.
+
+---
+
+# 10. Risk Classification
+
+The prototype uses the following thresholds:
+
+| Risk Score | Classification |
+|---:|---|
+| `< 10%` | Likely Legitimate |
+| `10% – 19.99%` | Needs Review |
+| `≥ 20%` | Potential Scam |
+
+The 20% threshold was selected based on evaluation of the prototype's classification performance.
+
+This threshold is intended for the project prototype and should not be interpreted as a guarantee that a message is fraudulent.
+
+---
+
+# 11. Suspicious Terms
+
+The system also identifies terms from the submitted message that overlap with terms found in similar spam documents.
+
+For example, a suspicious message may produce terms such as:
+
+```text
+urgent
+claim
 click
+congratulations
+prize
+winner
+```
 
-Retrieved examples
-Similar message #1
-Spam
+These terms provide additional evidence that helps explain the risk assessment.
 
-Example: Your account has been suspended. Verify now...
+---
 
-Similarity: 0.82
+# 12. Explainable Retrieval
 
-Similar message #2
-Spam
+One of the main goals of the project is to make the detection process understandable.
 
-Example: Click the link to restore your account...
+Instead of only returning:
 
-Similarity: 0.76
+```text
+Potential Scam
+92.18%
+```
 
-Illustrative interface only. The actual results will be calculated by your implementation.
-Your real application should have:
-1. A text input area.
-2. An Analyze button.
-3. A risk category.
-4. A risk score.
-5. Suspicious terms highlighted.
-6. Retrieved similar messages.
-7. Similarity scores.
-8. A short explanation of how the system reached its assessment.
+the application also shows:
 
-6. Evaluate your search engine
-This is another essential component of your project. You need to demonstrate that the system works and identify where it fails.
+- Retrieved documents
+- Similarity scores
+- Number of similar spam messages
+- Suspicious terms
+- Top matching messages
+- The information retrieval pipeline
 
-Split the UCI dataset into:
-- 80% training data.
-- 20% testing data.
-Use stratified splitting so that both sets retain approximately the same proportions of spam and legitimate messages.
+This allows users to understand the evidence behind the result.
 
-For a fair evaluation:
-- Build the dictionary and inverted index using training messages only.
-- Fit TF-IDF using training messages only.
-- Submit each test message as a query.
-- Compare its predicted category with its actual label.
-Evaluation metrics
-Precision
+---
 
-Of all the messages your system flags as spam, how many are actually spam?
-\[
-Precision=\frac{TP}{TP+FP}
-\]
+# Evaluation
 
-Recall
+The prototype was evaluated using the labelled SMS dataset.
 
-Of all the actual spam messages, how many did your system identify?
-\[
-Recall=\frac{TP}{TP+FN}
-\]
+The following metrics were used:
 
-F1-score
+### Accuracy
 
-The harmonic mean of precision and recall:
-\[
-F1=2\times\frac{Precision\times Recall}{Precision+Recall}
-\]
+Measures the proportion of correctly classified messages.
 
-Where:
-Term	Meaning
-TP	Spam correctly identified
-FP	Legitimate message incorrectly flagged
-TN	Legitimate message correctly identified
-FN	Spam message incorrectly missed
+```text
+Accuracy =
+Correct Predictions / Total Predictions
+```
 
-You should also produce a confusion matrix.
+### Precision
 
-For example, your final report could include a table like this (illustrative values, not measured results):
-Metric	Result
-Precision	90%
-Recall	85%
-F1-score	87.4%
-False positives	12
-False negatives	20
+Measures how many messages predicted as spam were actually spam.
 
-Use your actual experiment results in the final report.
-7. Divide the work among your four team members
-I recommend assigning ownership by technical component rather than having everyone work on the same Python files.
-Member	Responsibility	Main deliverables
-Axelle	Project lead and retrieval architecture	System architecture, inverted index, integration and documentation
-Asmaa	Dataset and preprocessing	Dataset analysis, cleaning, tokenization and dictionary
-Fatemeh	Retrieval and scoring	Boolean retrieval, TF-IDF and cosine similarity
-Deniz	Evaluation and interface	Streamlit UI, testing, precision, recall and visualizations
+```text
+Precision =
+True Positives / (True Positives + False Positives)
+```
 
-All four members should understand the complete system, especially because your professor may ask individual questions during the demonstration.
+### Recall
 
-My recommendation: You should personally oversee the integration of the inverted index, Boolean retrieval and ranked retrieval. These are the central Search Engine Principles concepts that will demonstrate the technical depth of the project.
+Measures how many actual spam messages were successfully identified.
 
-Use GitHub for collaboration:
-- main: stable version.
-- development: integration branch.
-- Individual feature branches for each member.
-- Pull requests before merging into development.
-Avoid having two members edit the same file simultaneously.
+```text
+Recall =
+True Positives / (True Positives + False Negatives)
+```
 
-8. Recommended development timeline
-Here is the sequence I would follow.
-Project execution roadmap
-1. Phase 1 – Project setup
-   Foundation
-   - Confirm project requirements.
-   - Create GitHub repository.
-   - Download dataset.
-   - Set up Python and VS Code.
-   - Inspect dataset.
-2. Phase 2 – Data processing
-   - Clean dataset.
-   - Tokenize messages.
-   - Normalize terms.
-   - Build dictionary.
-   - Generate inverted index.
-3. Phase 3 – Retrieval engine
-   - Implement AND, OR and NOT.
-   - Implement TF-IDF.
-   - Implement cosine similarity.
-   - Retrieve and rank similar messages.
-4. Phase 4 – Risk assessment
-   - Calculate scam scores.
-   - Establish thresholds.
-   - Generate explanations.
-   - Handle unknown messages.
-5. Phase 5 – Application development
-   - Create Streamlit interface.
-   - Connect retrieval engine.
-   - Display results.
-   - Test different messages.
-6. Phase 6 – Testing and evaluation
-   - Create training and testing sets.
-   - Calculate precision and recall.
-   - Generate confusion matrix.
-   - Analyze false positives and false negatives.
-7. Phase 7 – Final deliverables
-   - Complete technical documentation.
-   - Prepare presentation.
-   - Demonstrate the application.
-   - Discuss limitations and improvements.
+### F1-score
 
-9. What should your final submission demonstrate?
-I would structure your final project report around these sections:
-Section	Content
-1. Introduction	Problem, motivation and objectives
-2. Literature Review	Information retrieval and spam filtering research
-3. Dataset	Sources, characteristics and preprocessing
-4. System Architecture	Components and workflow
-5. Implementation	Tokenization, dictionary, inverted index, Boolean and ranked retrieval
-6. Risk Assessment	Scoring method and classification thresholds
-7. User Interface	Application screenshots and functionality
-8. Evaluation	Precision, recall, F1 and confusion matrix
-9. Discussion	Results, limitations and challenges
-10. Conclusion	Achievements and future improvements
-11. References	Academic and dataset sources
+Provides a balance between precision and recall.
 
-Additional literature and documentation
-Use these resources to support your technical implementation:
-1. Introduction to Information Retrieval – Free online textbook. Focus on Chapters 1, 2, 3, 6 and 7.
-2. Scikit-learn text feature extraction – TF-IDF implementation.
-3. Streamlit documentation – User interface.
-4. NLTK documentation – Tokenization and text processing.
-5. UCI dataset documentation – Dataset source and citation.
+```text
+F1 =
+2 × Precision × Recall
+──────────────────────
+   Precision + Recall
+```
 
-10. Important decisions before implementation
-There are a few things I would refine in your original proposal.
+---
 
-1. Keep machine learning optional.
+# Threshold Evaluation
 
-Your project should not become a machine-learning classification project. TF-IDF and cosine similarity are sufficient for the core implementation. A Naive Bayes classifier could be added as an optional comparison, but it should not replace your retrieval engine.
+Several risk thresholds were tested to determine an appropriate classification threshold.
 
-2. Make the inverted index visible.
+| Threshold | Accuracy | Precision | Recall | F1-score |
+|---:|---:|---:|---:|---:|
+| 10% | 96.14% | 80.81% | 93.29% | 86.60% |
+| 15% | 97.31% | 88.39% | 91.95% | 90.13% |
+| **20%** | **97.85%** | **93.71%** | **89.93%** | **91.78%** |
+| 25% | 97.85% | 94.96% | 88.59% | 91.67% |
+| 30% | 97.40% | 95.45% | 84.56% | 89.68% |
 
-Your professor should be able to see the dictionary, term-to-document mappings and retrieval results. Do not hide everything behind Scikit-learn.
+The **20% threshold** produced the highest F1-score among the tested thresholds and was therefore selected for the prototype.
 
-3. Separate retrieval from classification.
+The results also illustrate the trade-off between precision and recall when changing the classification threshold.
 
-Retrieval finds similar documents. Classification uses the retrieved documents to make a risk assessment. Explain this distinction in your report.
+---
 
-4. Test on messages beyond the original dataset.
+# Streamlit Application
 
-Use the second Zenodo dataset as an additional evaluation exercise. It can help establish whether the approach generalizes to phishing emails, although the two datasets have different collection characteristics. Do not use the second dataset to tune your original test results and then describe those results as independent validation.
+The project includes a web interface built using **Streamlit**.
 
-5. Document dataset limitations.
+The application allows users to:
 
-The UCI dataset dates from 2012 and contains English SMS messages. It does not represent every modern scam, messaging platform, language or attack technique.
+1. Enter a text message
+2. Submit the message for analysis
+3. View the risk classification
+4. View the risk score
+5. View retrieved documents
+6. View similar spam messages
+7. View suspicious terms
+8. Understand how the IR pipeline produced the result
+
+The application is deployed publicly using **Streamlit Community Cloud**.
+
+---
+
+# Running the Project Locally
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/Axelle14/INFO4105-ScamFilter.git
+```
+
+Navigate into the project:
+
+```bash
+cd INFO4105-ScamFilter
+```
+
+---
+
+## 2. Create a virtual environment
+
+### Windows
+
+```bash
+python -m venv venv
+```
+
+Activate it:
+
+```bash
+venv\Scripts\activate
+```
+
+### macOS/Linux
+
+```bash
+python3 -m venv venv
+```
+
+Activate it:
+
+```bash
+source venv/bin/activate
+```
+
+---
+
+## 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 4. Run the Streamlit application
+
+```bash
+streamlit run app/app.py
+```
+
+The application should then be available through the local Streamlit URL shown in the terminal, normally:
+
+```text
+http://localhost:8501
+```
+
+---
+
+# Running the Command-Line Version
+
+The project also contains a command-line entry point.
+
+Run:
+
+```bash
+python main.py
+```
+
+This provides a terminal-based interface for testing the scam detection system.
+
+---
+
+# Testing
+
+Unit tests are located in:
+
+```text
+tests/
+```
+
+The project includes tests for retrieval-related functionality.
+
+Tests can be executed using:
+
+```bash
+pytest
+```
+
+---
+
+# Technologies Used
+
+| Technology | Purpose |
+|---|---|
+| Python | Core implementation |
+| Streamlit | Web application |
+| TF-IDF | Term weighting |
+| Cosine Similarity | Document/query similarity |
+| Inverted Index | Efficient retrieval |
+| Boolean Retrieval | Term-based search |
+| Ranked Retrieval | Relevance ranking |
+| UCI SMS Spam Collection | Dataset |
+| Git/GitHub | Version control |
+| Streamlit Community Cloud | Public deployment |
+
+---
+
+# Project Structure
+
+```text
+INFO4105-ScamFilter/
+│
+├── app/
+│   ├── app.py
+│   └── streamlit_app.py
+│
+├── data/
+│   └── raw/
+│       └── SMSSpamCollection
+│
+├── results/
+│
+├── src/
+│   ├── boolean_retrieval.py
+│   ├── classifier.py
+│   ├── data_analysis.py
+│   ├── data_loader.py
+│   ├── evaluation.py
+│   ├── indexer.py
+│   ├── preprocessing.py
+│   ├── query_parser.py
+│   ├── ranked_retrieval.py
+│   └── search_engine.py
+│
+├── tests/
+│   └── test_retrieval.py
+│
+├── main.py
+├── requirements.txt
+├── README.md
+└── .gitignore
+```
+
+---
+
+# Limitations
+
+ScamFilter is an academic prototype and has several limitations.
+
+### Dataset limitations
+
+The system relies on the SMS Spam Collection dataset. Real-world scam messages may differ from the messages represented in the dataset.
+
+### Language limitations
+
+The current implementation is primarily designed for English text.
+
+### False positives
+
+Legitimate messages can sometimes resemble spam messages and may therefore receive elevated risk scores.
+
+### False negatives
+
+A scam message that is significantly different from the indexed spam examples may receive a low risk score.
+
+### No guarantee of fraud
+
+The system provides a similarity-based screening recommendation. A classification of "Potential Scam" does not prove that a message is fraudulent.
+
+### No real-time messaging integration
+
+The current prototype analyzes messages that are manually submitted through the web application. It does not automatically monitor SMS, email, or messaging applications.
+
+---
+
+# Privacy
+
+The current application is designed as an academic prototype.
+
+Users should avoid submitting sensitive personal information, passwords, financial information, authentication codes, or other confidential content.
+
+The project does not require access to a user's personal SMS inbox or email account.
+
+---
+
+# Future Improvements
+
+Potential future development includes:
+
+- Expanding the dataset
+- Supporting additional languages
+- Improving preprocessing
+- Adding more advanced ranking algorithms
+- Comparing TF-IDF with BM25
+- Adding a confusion matrix visualization
+- Adding an interactive evaluation dashboard
+- Integrating the system with email security workflows
+- Developing an iOS Message Filter proof of concept
+- Comparing classical IR methods with machine-learning approaches
+- Improving explainability and evidence ranking
+
+---
+
+# Academic Context
+
+This project was developed for:
+
+**INFO 4105 – Search Engine Principles**
+
+The project demonstrates how information retrieval techniques can be applied to a practical scam-detection problem.
+
+The primary focus is not simply on classifying messages, but on demonstrating the complete retrieval pipeline:
+
+```text
+Document Collection
+        ↓
+Preprocessing
+        ↓
+Dictionary
+        ↓
+Inverted Index
+        ↓
+Query Processing
+        ↓
+Boolean Retrieval
+        ↓
+Ranked Retrieval
+        ↓
+TF-IDF
+        ↓
+Cosine Similarity
+        ↓
+Evaluation
+        ↓
+Scam Risk Assessment
+```
+
+---
+
+# Team
+
+**INFO 4105 – ScamFilter Project Team**
+
+- Axelle Guedia
+- Asmaa Almasri
+- Fatemeh Samadi
+- Deniz Tur
+
+---
+
+# Disclaimer
+
+ScamFilter is an academic research and demonstration project.
+
+It is intended to demonstrate information retrieval concepts and should not be considered a replacement for professional cybersecurity software, email security systems, telecommunications security systems, or human judgment.
+
+A message classified as a potential scam should be reviewed carefully before taking any action.
